@@ -21,13 +21,13 @@ Reset:
     bl  set_clock                /*设置时钟*/
     bl  disable_caches           /*关闭caches*/
     bl  init_sram                /*初始化sram*/
+    bl  turn_on_led              /*利用led_debug*/
     bl  init_stack               /*初始化栈*/
-    @bl  turn_on_led              /*利用led_debug*/
     @bl  clean_bss                /*初始化bss*/
-    @bl  copy_to_ram              /*复制自身到ram*/
-    bl  create_page_table        /*创建page_table*/
-    @bl  mmu_init                 /*初始化mmu*/
     @bl  nand_init               /*初始化nand*/
+    @bl  copy_to_ram              /*复制自身到ram*/
+    @bl  create_page_table        /*创建page_table*/
+    @bl  mmu_init                 /*初始化mmu*/
     bl arm_main                  /*执行main函数*/
 
 Undef:
@@ -147,7 +147,7 @@ mem_cfg_val:
     .long 0x00000700    @ BANKCON5
     .long 0x00018005    @ BANKCON6
     .long 0x00018005    @ BANKCON7
-    .long 0x008c07A3    @ REFRESH
+    .long 0x008c04EC    @ REFRESH   R_CNT = 2^11 + 1 - (405 / 4)*7.8125 =1259.9375 = 0x4EC   2^11 + 1 - 12*7.8125 = 1955.2500 = 0x7A3
     .long 0x000000B1    @ BANKSIZE
     .long 0x00000030    @ MRSRB6
     .long 0x00000030    @ MRSRB7
