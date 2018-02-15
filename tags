@@ -4,6 +4,10 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	0.0.0	//
-arm_main	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/main.c	39;"	f	typeref:typename:void	signature:()
-handle_int	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/main.c	20;"	f	typeref:typename:void	signature:()
-mem_test	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/main.c	26;"	f	typeref:typename:int	signature:()
+GPBCON	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	19;"	d	file:
+GPBDAT	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	20;"	d	file:
+beep_init	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	22;"	f	typeref:typename:void	signature:(void)
+beep_run	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	34;"	f	typeref:typename:void	signature:(void)
+led_init	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	42;"	f	typeref:typename:void	signature:()
+led_off	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	55;"	f	typeref:typename:void	signature:()
+led_on	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	50;"	f	typeref:typename:int	signature:()
