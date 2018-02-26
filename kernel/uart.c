@@ -67,7 +67,7 @@ unsigned char getc(void)
     return URXH0;
 }
 
-void puts(unsigned char *s)
+void uputs(unsigned char *s)
 {
     while(*s)
     {
@@ -75,17 +75,23 @@ void puts(unsigned char *s)
     }
 }
 
-int gets(unsigned char *s)
+char *ugets(char *s)
 {
-    int i = 0;
-    while((*s = getc())!= '\r')
-    {
-        putc(*s);
-        s++;
-        i++;
-    }
-    return i;
+	char *save = s;
+	char c;
+	
+	while((c = getc()) != '\r'){
+		*s = c;
+		putc(*s);	
+		s++;	
+	}
+	
+	*s = '\0';
+	putc('\r');
+	putc('\n');
+	return save;
 }
+
 
 void itoa(int n, char *buf)
 {
@@ -143,7 +149,7 @@ int uprintf(const char *fmt, ...)
 					break;
 				case 's':
 					s = va_arg(ap, char *);
-					puts(s);
+					uputs(s);
 					break;
 				case 'd':
 					d = va_arg(ap, int);	
@@ -152,12 +158,12 @@ int uprintf(const char *fmt, ...)
 						d = -d;
 					}
 					itoa(d, buf);
-					puts(buf);
+					uputs(buf);
 					break;
 				case 'x':
 					d = va_arg(ap, int);
 					xtoa(d, buf);
-					puts(buf);
+					uputs(buf);
 					break;
 				default:
 					break;

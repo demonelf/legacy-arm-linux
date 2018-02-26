@@ -19,6 +19,8 @@
 #ifndef __INCLUDE_UART_H
 #define __INCLUDE_UART_H
 
-extern int uprintf(const char *fmt, ...);
+int uprintf(const char *fmt, ...);
+void uputs(unsigned char *s);
+char *ugets(char *s);
 
 #endif

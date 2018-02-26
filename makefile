@@ -21,17 +21,19 @@ AS 		 = $(COMPILE)as
 GCC 	 = $(COMPILE)gcc
 LD  	 = $(COMPILE)ld
 OBJCOPY  = $(COMPILE)objcopy
+OBJDUMP  = $(COMPILE)objdump
 CFLAGS   = -nostdinc -fno-builtin -I./include -I../include -I/opt/FriendlyARM/toolschain/4.4.3/include -I /opt/FriendlyARM/toolschain/4.4.3/lib/gcc/arm-none-linux-gnueabi/4.4.3/include
 
 #编译目标
 ELF 	 = miniboot.elf
 BIN		 = u-boot.bin
 OBJDIR	 = $(CURDIR)/objects
-OBJECTS	 = $(patsubst %.S,%.o,$(wildcard *.S ./boot/*.S)) $(patsubst %.c,%.o,$(wildcard *.c ./kernel/*.c))
+OBJECTS	 = $(patsubst %.S,%.o,$(wildcard *.S ./boot/*.S)) $(patsubst %.c,%.o,$(wildcard *.c ./init/*.c)) $(patsubst %.c,%.o,$(wildcard *.c ./kernel/*.c)) $(patsubst %.c,%.o,$(wildcard *.c ./lib/*.c))
 
 #编译规则
 $(BIN)	: $(ELF)
 	$(OBJCOPY) -O binary $^ $@
+	$(OBJDUMP) -D $^ > dump.asm
 
 $(ELF)	: $(OBJECTS)
 	$(LD) -Tminiboot.lds -o $@ $^

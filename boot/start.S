@@ -1,8 +1,6 @@
-.equ    MEM_CTL_BASE,   0x48000000
-.equ    SDRAM_BASE,     0x30000000
 .text
 .global _start
-#include "start.inc"
+/******************1. set exception vectors*******************/
 _start:
     b   Reset                   @0x00
     b   Undef                   @0x04
@@ -12,23 +10,6 @@ _start:
     b   Reserved                @0x14
     b   irq                     @0x18
     b   fiq
-
-/*start code on reset*/
-Reset:
-    bl  set_cpu_mode             /*设置特权模式*/
-    bl  turn_off_watchdog        /*关闭看门狗*/
-    bl  mask_irqs                /*关闭中断*/
-    bl  set_clock                /*设置时钟*/
-    bl  disable_caches           /*关闭caches*/
-    bl  init_sram                /*初始化sram*/
-    bl  turn_on_led              /*利用led_debug*/
-    bl  init_stack               /*初始化栈*/
-    @bl  clean_bss                /*初始化bss*/
-    @bl  nand_init               /*初始化nand*/
-    @bl  copy_to_ram              /*复制自身到ram*/
-    @bl  create_page_table        /*创建page_table*/
-    @bl  mmu_init                 /*初始化mmu*/
-    bl arm_main                  /*执行main函数*/
 
 Undef:
         nop
@@ -46,11 +27,8 @@ Reserved:
         nop
 
 irq:
-	@mov sp, #0x32000000
 	sub lr, lr, #4
 	stmfd sp!, {r0-r12, lr}
-    @ldr lr, =int_return
-	@ldr pc, =handle_int
     bl handle_int
     int_return:
 	ldmfd sp!, {r0-r12, pc}^        
@@ -58,61 +36,74 @@ irq:
 fiq:
         nop
 
-/*******************reset********************/
-set_cpu_mode:
-    mrs r0, cpsr            /*获取cpsr*/
-    bic r0, r0, #0x1f       /*清空后五位*/
-    orr r0, r0, #0xd3       /*设置后五位*/
-    msr cpsr, r0
-    mov pc, lr
+/*************************************/
+/*********start code on reset*********/
+/*************************************/
+Reset:
+    bl  set_cpu_mode             /*设置特权模式*/
+    bl  turn_off_watchdog        /*关闭看门狗*/
+    bl  mask_irqs                /*关闭中断*/
+    bl  set_clock                /*设置时钟*/
+    bl  disable_caches           /*关闭caches*/
+    bl  init_sram                /*初始化sram*/
+    bl  init_stack               /*初始化栈*/
+    bl  clean_bss                /*初始化bss*/
+    bl  nand_init                /*初始化nand*/
+    bl  copy_to_ram              /*复制自身到ram*/
+    ldr pc, =arm_main      /****12. jump to c function******/
+
+set_cpu_mode:      
+     /****** set to svc32 mode ******/
+      mrs r0, cpsr
+      bic r0, r0, #0x1f
+      orr r0, r0, #0xd3
+      msr cpsr, r0
+      mov pc, lr
 
 turn_off_watchdog:
-    ldr r0, =WTCON
-    mov r1, #0x0
-    str r1, [r0]
-    mov pc, lr
-
-turn_on_led:
-    LDR R0,=0x56000010      @ R0设为GPBCON寄存器。此寄存器
-    MOV R1,#0x00000400        
-    STR R1,[R0]             @ 设置GPB5为输出口, 位[10:9]=0b01
-    LDR R0,=0x56000014      @ R0设为GPBDAT寄存器。此寄存器
-    MOV R1,#0x00000000      @ 此值改为0x00000020,
-    STR R1,[R0]             @ GPB5输出0，LED1点亮
-    @b turn_on_led
-    mov pc, lr
+     /*******turn off watchdog********/ 
+#define WTCON 0x53000000
+      ldr r0, =WTCON
+      mov r1, #0x0
+      str r1, [r0]
+      mov pc, lr
 
 mask_irqs:
-    mov r0, #0
-    ldr r1, =0x4a000008
-    str r0, [r1]
-    mov pc, lr
+     /*********mask all irqs**********/
+      mvn r0, #0
+      ldr r1, =0x4a000008
+      str r0, [r1]
+      mov pc,lr
 
+#define CLKDIVN 0x4c000014
+#define MPLLCON 0x4C000004
+#define MPLL_405M ((0x7f<<12)|(2<<4)|(1<<0))
 set_clock:
-    /*FCLK:HCLK:PCLK = 1:4:8*/
-    ldr r0, =CLKDIVN
-    mov r1, #0x5
-    str r1, [r0]
-    mrc p15, 0, r0,c1,c0,0
-    orr r0,r0,#0xc0000000
-    mcr p15,0,r0,c1,c0,0
-    /*FCLK = 405MHZ*/
-    ldr r0, =MPLLCON
-    ldr r1, =MPLL_405M
-    str r1, [r0]
-    mov pc, lr
+     /*****FCLK:HCLK:PCLK = 1:4:8*********/
+      ldr r0, =CLKDIVN
+      mov r1, #0x5
+      str r1, [r0]
+      mrc p15, 0, r0,c1,c0,0
+      orr r0,r0,#0xc0000000
+      mcr p15,0,r0,c1,c0,0
+     /*******FCLK = 405MHZ************/
+      ldr r0, =MPLLCON
+      ldr r1, =MPLL_405M
+      str r1, [r0]
+      mov pc, lr
 
 disable_caches:
-    /*******flush I/Dcaches and mmu*****/
-    mcr p15, 0, r0, c7, c7, 0
-    mrc p15, 0, r0, c1, c0, 0
-    bic r0, r0, #0x00000007 
-    mcr p15, 0, r0, c1, c0, 0
-    mov pc, lr
-
-init_sram:
+      /*******flush I/Dcaches and mmu*****/
+      mcr p15, 0, r0, c7, c7,0
+      mrc p15, 0, r0, c1, c0,0
+      bic r0, r0,#0x00000007 
+      mcr p15, 0, r0, c1,c0, 0
+      mov pc, lr
+ 
+init_sram:  /*stepping 4K 0x30000000 ~ 0x37FFFFFF (7FFFFFF+1)*8/1000/1000 =64MB*/
+#define MEM_CTL_BASE   #0x48000000
     @设置存储控制器以便使用SDRAM等外设
-    mov r1, #MEM_CTL_BASE
+    mov r1, MEM_CTL_BASE
     adrl r2, mem_cfg_val
     add r3, r1, #52
 1:
@@ -121,19 +112,6 @@ init_sram:
     cmp r1, r3
     bne 1b
     mov pc, lr
-
-nand_init:            /*初始化nand*/
-
-init_stack:           /*初始化栈*/
-    msr cpsr_c, #0xd2
-    ldr sp, =0x33000000 /**R13_irq**/
-    msr cpsr_c, #0xd3
-    ldr sp, =0x34000000 /**R13_svc**/
-    mov pc, lr
-
-clean_bss:            /*初始化bss*/
-
-copy_to_ram:          /*复制自身到ram*/
 
 .align 4
 mem_cfg_val:
@@ -151,4 +129,35 @@ mem_cfg_val:
     .long 0x000000B1    @ BANKSIZE
     .long 0x00000030    @ MRSRB6
     .long 0x00000030    @ MRSRB7
+copy_to_ram:
+      /*******copy datas to sdram from stepping stone*****/
+      mov r0, #0
+      ldr r1, =_start
+      ldr r2, =bss_end
+      sub r2, r2,r1
+      mov ip, lr
+      bl nand_to_ram
+      mov lr,ip
+      mov pc, lr
+init_stack:
+      /********initializing stack*********/
+      msr cpsr_c, #0xd2
+      ldr sp, =0x33000000 /**R13_irq**/
+      msr cpsr_c, #0xd3
+      ldr sp, =0x34000000 /**R13_svc**/
+      mov pc, lr
+
+ clean_bss:
+      /********clearing bss section**********/
+      ldr r0, =bss_start
+      ldr r1, =bss_end
+      cmp r0, r1
+      moveq pc, lr
+      
+      clean_loop:
+      mov r2, #0
+      str r2, [r0], #4
+      cmp r0, r1
+      bne clean_loop
+      mov pc, lr
 

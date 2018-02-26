@@ -22,8 +22,8 @@
 void beep_init(void)//蜂鸣器初始化
 {
 
-   //GPBCON = 0x2;   // 设置GPB0为TOU0模式
-   //GPBUP |=(1<<0);//禁止GPB0上拉功能
+   //GPBCON = 0x2;      // 设置GPB0为TOU0模式
+   //GPBUP |=(1<<0);    //禁止GPB0上拉功能
    GPBCON &= ~(0x3<<0);
    GPBCON |= (0x1<<0);  
 }
@@ -43,7 +43,7 @@ void led_init()
 {
     GPBCON = (1<<10)|(1<<12)|(1<<14)|(1<<16);
     GPBDAT = 0xffffffff;
-    beep_init();
+    //beep_init();
     //beep_run();
 }
 

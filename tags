@@ -4,10 +4,24 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	0.0.0	//
-GPBCON	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	19;"	d	file:
-GPBDAT	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	20;"	d	file:
-beep_init	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	22;"	f	typeref:typename:void	signature:(void)
-beep_run	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	34;"	f	typeref:typename:void	signature:(void)
-led_init	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	42;"	f	typeref:typename:void	signature:()
-led_off	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	55;"	f	typeref:typename:void	signature:()
-led_on	/home/demonelf/project/00.mywork/legacy-arm-linux/kernel/led.c	50;"	f	typeref:typename:int	signature:()
+NFADDR	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	4;"	d	file:
+NFCMMD	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	3;"	d	file:
+NFCONF	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	1;"	d	file:
+NFCONT	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	2;"	d	file:
+NFDATA	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	5;"	d	file:
+NFSTAT	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	6;"	d	file:
+TACLS	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	9;"	d	file:
+TWRPH0	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	10;"	d	file:
+TWRPH1	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	11;"	d	file:
+clear_RnB	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	24;"	f	typeref:typename:void	signature:()
+diselect_chip	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	19;"	f	typeref:typename:void	signature:()
+nand_PageRead	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	76;"	f	typeref:typename:void	signature:(unsigned long addr,unsigned char * buff)
+nand_PageWrite	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	114;"	f	typeref:typename:unsigned long	signature:(unsigned long addr,unsigned char * buff)
+nand_erase	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	170;"	f	typeref:typename:unsigned long	signature:(unsigned long addr)
+nand_init	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	66;"	f	typeref:typename:void	signature:()
+nand_reset	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	47;"	f	typeref:typename:void	signature:()
+nand_to_ram	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	157;"	f	typeref:typename:void	signature:(unsigned long start_addr,unsigned char * sdram_addr,int size)
+select_chip	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	14;"	f	typeref:typename:void	signature:()
+send_addr	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	35;"	f	typeref:typename:void	signature:(unsigned addr)
+send_cmmd	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	29;"	f	typeref:typename:void	signature:(unsigned cmmd)
+wait_RnB	/home/demonelf/project/00.mywork/legacy-arm-linux/init/nand.c	41;"	f	typeref:typename:void	signature:()
