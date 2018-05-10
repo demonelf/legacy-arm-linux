@@ -157,10 +157,10 @@ __asm__(
     "mcr    p15, 0, r0, c1, c0, 0\n"    /* 将修改的值写入控制寄存器 */
 
 #if 1
-    "ldr    r0, =0x30008000\n"
+    "ldr    r0, =0x31000000\n"
     "sub    r0, fp, r0\n"
     "mov    fp, r0\n"
-    "ldr    r0, =0x30008000\n"
+    "ldr    r0, =0x31000000\n"
     "sub    r0, sp, r0\n"
     "mov    sp, r0\n"                   /*重设栈指针，指向1M顶端(使用虚拟地址)*/
 #endif

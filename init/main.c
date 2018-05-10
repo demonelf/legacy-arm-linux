@@ -107,6 +107,13 @@ unsigned int register pc asm("pc");
 
 void main(void)	
 {
+  	unsigned int register pc asm("pc");
+	char cmd_buf[1024];
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	char cmd_argv[6][16];
+
 	memory_end = (1<<20) + (EXT_MEM_K<<10);
 	memory_end &= 0xfffff000;
 	if (memory_end > 16*1024*1024)
@@ -125,8 +132,12 @@ void main(void)
 	trap_init();
     led_init();
     uart0_init();
-    while(1)
-        uprintf("PC:%x uart init\n", pc);
+	while(1)
+	{
+		uprintf(SHELL);
+		ugets(cmd_buf);
+	}	
+
 
 #if 0
 	blk_dev_init();
