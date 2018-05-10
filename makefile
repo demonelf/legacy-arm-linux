@@ -28,7 +28,8 @@ CFLAGS   = -nostdinc -fno-builtin -I./include -I../include -I/opt/FriendlyARM/to
 ELF 	 = miniboot.elf
 BIN		 = u-boot.bin
 OBJDIR	 = $(CURDIR)/objects
-OBJECTS	 = $(patsubst %.S,%.o,$(wildcard *.S ./boot/*.S)) $(patsubst %.c,%.o,$(wildcard *.c ./init/*.c)) $(patsubst %.c,%.o,$(wildcard *.c ./kernel/*.c)) $(patsubst %.c,%.o,$(wildcard *.c ./lib/*.c))
+OBJECTS	 = $(patsubst %.S,%.o,$(wildcard *.S ./boot/*.S)) $(patsubst %.c,%.o,$(wildcard *.c ./init/*.c)) $(patsubst %.c,%.o,$(wildcard *.c ./kernel/*.c)) $(patsubst %.c,%.o,$(wildcard *.c ./lib/*.c)) $(patsubst %.c,%.o,$(wildcard *.c ./mm/*.c)) $(patsubst %.c,%.o,$(wildcard *.c ./app/*.c)) $(patsubst %.S,%.o,$(wildcard *.S ./app/*.S)) 
+
 
 #编译规则
 $(BIN)	: $(ELF)

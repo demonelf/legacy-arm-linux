@@ -40,16 +40,40 @@ void create_page_table(void)
     unsigned long virtuladdr, physicaladdr;
     unsigned long *mmu_tlb_base = (unsigned long *)0x30000000;
     
-    /*
-     * Steppingstone的起始物理地址为0，第一部分程序的起始运行地址也是0，
-     * 为了在开启MMU后仍能运行第一部分的程序，
-     * 将0～1M的虚拟地址映射到同样的物理地址
-     */
+    //内核空间 1M
     virtuladdr = 0;
-    physicaladdr = 0;
+    physicaladdr = 0x31000000;
+    //physicaladdr = 0x30008000;
     *(mmu_tlb_base + (virtuladdr >> 20)) = (physicaladdr & 0xFFF00000) | \
                                             MMU_SECDESC_WB;
 
+#if 1
+    /*
+     * 0x56000000是GPIO寄存器的起始物理地址，
+     * GPBCON和GPBDAT这两个寄存器的物理地址0x56000010、0x56000014，
+     * 为了在第二部分程序中能以地址0xA0000010、0xA0000014来操作GPBCON、GPBDAT，
+     * 把从0xA0000000开始的1M虚拟地址空间映射到从0x56000000开始的1M物理地址空间
+     */
+    virtuladdr = 0x56000000;
+    physicaladdr = 0x56000000;
+    *(mmu_tlb_base + (virtuladdr >> 20)) = (physicaladdr & 0xFFF00000) | \
+                                            MMU_SECDESC;
+    /*uart*/
+    virtuladdr = 0x50000000;
+    physicaladdr = 0x50000000;
+    *(mmu_tlb_base + (virtuladdr >> 20)) = (physicaladdr & 0xFFF00000) | \
+                                            MMU_SECDESC;
+#endif
+
+#if 0
+    /*mmu_table_addr*/
+    virtuladdr = 0x60000000;
+    physicaladdr = 0x30000000;
+    *(mmu_tlb_base + (virtuladdr >> 20)) = (physicaladdr & 0xFFF00000) | \
+                                            MMU_SECDESC;
+#endif
+
+#if 0
     /*
      * 0x56000000是GPIO寄存器的起始物理地址，
      * GPBCON和GPBDAT这两个寄存器的物理地址0x56000010、0x56000014，
@@ -75,6 +99,7 @@ void create_page_table(void)
         virtuladdr += 0x100000;
         physicaladdr += 0x100000;
     }
+#endif
 }
 
 void mmu_init(void)
@@ -101,7 +126,7 @@ __asm__(
      */
     "mrc    p15, 0, r0, c1, c0, 0\n"    /* 读出控制寄存器的值 */
     
-    /* 控制寄存器的低16位含义为：.RVI ..RS B... .CAM
+    /* 控制寄存器的低16位含义为：.RVI ..RS  /* 域访问控制寄存 B... .CAM
      * R : 表示换出Cache中的条目时使用的算法，
      *     0 = Random replacement；1 = Round robin replacement
      * V : 表示异常向量表所在的位置，
@@ -129,8 +154,16 @@ __asm__(
     "orr    r0, r0, #0x0004\n"          /* .... .... .... .1.. 开启DCaches */
     "orr    r0, r0, #0x1000\n"          /* ...1 .... .... .... 开启ICaches */
     "orr    r0, r0, #0x0001\n"          /* .... .... .... ...1 使能MMU */
-    
     "mcr    p15, 0, r0, c1, c0, 0\n"    /* 将修改的值写入控制寄存器 */
+
+#if 1
+    "ldr    r0, =0x30008000\n"
+    "sub    r0, fp, r0\n"
+    "mov    fp, r0\n"
+    "ldr    r0, =0x30008000\n"
+    "sub    r0, sp, r0\n"
+    "mov    sp, r0\n"                   /*重设栈指针，指向1M顶端(使用虚拟地址)*/
+#endif
     : /* 无输出 */
     : "r" (ttb) );
 }

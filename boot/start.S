@@ -1,3 +1,8 @@
+/*
+bootsect.s  bootload
+setup.s     初始化和设置中断描述符和全局描述符
+head.s      做为system模块的开头
+*/
 .text
 .global _start
 /******************1. set exception vectors*******************/
@@ -50,7 +55,9 @@ Reset:
     bl  clean_bss                /*初始化bss*/
     bl  nand_init                /*初始化nand*/
     bl  copy_to_ram              /*复制自身到ram*/
-    ldr pc, =arm_main      /****12. jump to c function******/
+    bl  create_page_table        /*创建page_table*/
+    bl  mmu_init                 /*初始化mmu*/
+    ldr pc, =main                /*启动main*/
 
 set_cpu_mode:      
      /****** set to svc32 mode ******/
@@ -130,21 +137,27 @@ mem_cfg_val:
     .long 0x00000030    @ MRSRB6
     .long 0x00000030    @ MRSRB7
 copy_to_ram:
+      /*0x30008000 0x8000=32k */
+      /*0~0x4000存放Bootloader传递到Kernel的参数，
+      /*0x4000~0x8000存放主页表*/
+      /*PGD（arm页表项4byte，映射1M地址空间，4G空间大小需要4096个页表项，所以16k = 4byte * 4096）*/
       /*******copy datas to sdram from stepping stone*****/
       mov r0, #0
-      ldr r1, =_start
+      //ldr r1, =_start
+      ldr r1, =0x31000000
       ldr r2, =bss_end
-      sub r2, r2,r1
+      //sub r2, r2,r1
       mov ip, lr
       bl nand_to_ram
       mov lr,ip
       mov pc, lr
 init_stack:
       /********initializing stack*********/
-      msr cpsr_c, #0xd2
-      ldr sp, =0x33000000 /**R13_irq**/
+      //msr cpsr_c, #0xd2
+      //ldr sp, =0x33000000 /**R13_irq**/
       msr cpsr_c, #0xd3
-      ldr sp, =0x34000000 /**R13_svc**/
+      //ldr sp, =0x34000000 /**R13_svc**/
+      ldr sp, =(0x31000000 + 0x00010000) /**R13_svc**/
       mov pc, lr
 
  clean_bss:

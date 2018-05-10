@@ -18,6 +18,7 @@
 #include "common.h"
 #include "lib.h"
 #include "led.h"
+#include "sched.h"
 
 void shell_led(int argc, char agrv[6][16])
 {
@@ -39,7 +40,7 @@ void shell_common(int argc, char agrv[6][16])
 	else
 		uprintf("cmd %s is not supported\n", agrv[0]);
 }
-void arm_main()
+void init()
 {
   	unsigned int register pc asm("pc");
 	char cmd_buf[1024];
@@ -89,7 +90,63 @@ void handle_int()
     I2CIntHandle();
 }
 
-void main()
-{
+/*
+ * This is set up by the setup-routine at boot-time
+ */
+//#define EXT_MEM_K (*(unsigned short *)0x90002)
+#define EXT_MEM_K (64 * 1024)
+#define DRIVE_INFO (*(struct drive_info *)0x90080)
+#define ORIG_ROOT_DEV (*(unsigned short *)0x901FC)
 
+
+static long memory_end = 0;
+static long buffer_memory_end = 0;
+static long main_memory_start = 0;
+
+unsigned int register pc asm("pc");
+
+void main(void)	
+{
+	memory_end = (1<<20) + (EXT_MEM_K<<10);
+	memory_end &= 0xfffff000;
+	if (memory_end > 16*1024*1024)
+		memory_end = 16*1024*1024;
+	if (memory_end > 12*1024*1024) 
+		buffer_memory_end = 4*1024*1024;
+	else if (memory_end > 6*1024*1024)
+		buffer_memory_end = 2*1024*1024;
+	else
+		buffer_memory_end = 1*1024*1024;
+	main_memory_start = buffer_memory_end;
+#ifdef RAMDISK
+	main_memory_start += rd_init(main_memory_start, RAMDISK*1024);
+#endif
+	mem_init(main_memory_start,memory_end);
+	trap_init();
+    led_init();
+    uart0_init();
+    while(1)
+        uprintf("PC:%x uart init\n", pc);
+
+#if 0
+	blk_dev_init();
+	chr_dev_init();
+	tty_init();
+	time_init();
+#endif
+
+	sched_init();
+
+#if 0
+	buffer_init(buffer_memory_end);
+	hd_init();
+	floppy_init();
+	sti();
+	move_to_user_mode();
+	if (!fork()) {		/* we count on this going ok */
+		init();
+	}
+	for(;;) pause();
+#endif
+    init();
 }
